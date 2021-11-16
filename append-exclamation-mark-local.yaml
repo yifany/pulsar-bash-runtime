@@ -8,6 +8,6 @@ inputs:
   - "persistent://public/default/bash-runtime-input-1"
 output: "persistent://public/default/bash-runtime-output-1"
 userConfig:
-  "scriptInputPath": "/append-exclamation-mark.sh"
+  "scriptInputPath": "classpath:/append-exclamation-mark.sh"
 autoAck: true
 parallelism: 1

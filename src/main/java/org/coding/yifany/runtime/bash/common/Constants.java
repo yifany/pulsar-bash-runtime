@@ -10,6 +10,8 @@ public class Constants {
     public static final String SCRIPT_INPUT_PATH = "scriptInputPath";
     public static final String SCRIPT_OUTPUT_PATH = "scriptOutputPath";
 
+    public static final String PREFIX_CLASSPATH = "classpath:";
+
     public static String getEnvOrElseException(String envKey, Context context) {
         String getOrElse = getEnvOrElse(envKey, null, context);
         if (StringUtils.isEmpty(getOrElse)) {

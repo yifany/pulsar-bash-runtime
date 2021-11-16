@@ -1,0 +1,14 @@
+tenant: "public"
+namespace: "default"
+name: "BashRuntimeFunction"
+className: "org.coding.yifany.runtime.bash.function.BashRuntimeFunction"
+outputSerdeClassName: "org.coding.yifany.runtime.bash.function.BashRuntimeSerDe"
+jar: "pulsar-bash-runtime/pulsar-bash-runtime-1.0.jar"
+inputs:
+  - "persistent://public/default/bash-runtime-input-1"
+output: "persistent://public/default/bash-runtime-output-1"
+logTopic: "persistent://public/default/bash-runtime-logs-1"
+userConfig:
+  "scriptInputPath": "classpath:/append-exclamation-mark.sh"
+autoAck: true
+parallelism: 2

@@ -15,13 +15,22 @@ public class BashRuntimeFunction implements Function<String, List<String>> {
     private String scriptOutputPath;
     private String scriptInputPath;
 
+    public BashRuntimeFunction() {
+
+    }
+
+    public BashRuntimeFunction(String scriptInputPath, String scriptOutputPath) {
+        this.scriptInputPath = scriptInputPath;
+        this.scriptOutputPath = scriptOutputPath;
+    }
+
     public List<String> process(String input, Context context) throws Exception {
         this.resolveUserConfig(context);
 
-        String scriptTempName = this.scriptTempName();
-
-        ProcessBuilder
-                processBuilder = this.createProcessBuilder(input, scriptTempName, context);
+        String scriptTempName =
+                this.scriptTempName(this.scriptInputPath);
+        ProcessBuilder processBuilder =
+                this.createProcessBuilder(input, scriptTempName, context);
         Process process = processBuilder.start();
 
         int exitCode = process.waitFor();
@@ -30,7 +39,7 @@ public class BashRuntimeFunction implements Function<String, List<String>> {
                 this.streamAsList(process.getInputStream());
         List<String> errorList = this.streamAsList(process.getErrorStream());
 
-        context.getLogger().info(String.format("exitCode is %s", exitCode));
+        context.getLogger().info(String.format("Process finished with exitCode [%s]", exitCode));
 
         return exitCode == 0 ? outputList : errorList;
     }
@@ -39,26 +48,22 @@ public class BashRuntimeFunction implements Function<String, List<String>> {
         this.scriptOutputPath =
                 Constants.getEnvOrElse(Constants.SCRIPT_OUTPUT_PATH,
                         FileUtils.getTempDirectory().getAbsolutePath(), context);
-        context.getLogger().info(String.format("scriptOutputPath is %s", this.scriptOutputPath));
+        context.getLogger().info(String.format("Bash temporary directory is defined as [%s]", this.scriptOutputPath));
 
-        this.scriptInputPath = Constants.getEnvOrElseException(Constants.SCRIPT_INPUT_PATH, context);
-
-        context.getLogger().info(String.format("scriptInputPath is %s", this.scriptInputPath));
+        this.scriptInputPath =
+                Constants.getEnvOrElseException(Constants.SCRIPT_INPUT_PATH, context);
+        context.getLogger().info(String.format("Bash input path is defined as [%s]", this.scriptInputPath));
     }
 
     protected ProcessBuilder createProcessBuilder(String args, String scriptTempName, Context context) throws IOException {
         File scriptTempPath =
                 new File(String.format("%s/%s", this.scriptOutputPath, scriptTempName));
-        boolean writable = scriptTempPath.setWritable(true, false);
-
         InputStream scriptInput =
-                this.getClass().getResourceAsStream(this.scriptInputPath);
+                this.openInputStream(this.scriptInputPath);
         if (scriptInput != null) {
             FileUtils.copyInputStreamToFile(scriptInput, scriptTempPath);
-
-            context.getLogger().info(String.format("copy input stream from [%s] to [%s] writable [%s]", scriptInput, scriptTempPath, writable));
         } else
-            context.getLogger().info("scriptInput is null");
+            context.getLogger().info("Unable to copy script to temp directory");
 
         ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command("sh", scriptTempName, args);
@@ -71,7 +76,20 @@ public class BashRuntimeFunction implements Function<String, List<String>> {
         return new BufferedReader(new InputStreamReader(ins)).lines().collect(Collectors.toList());
     }
 
-    protected String scriptTempName() {
-        return FilenameUtils.getName(this.scriptInputPath);
+    protected String scriptTempName(String scriptInputPath) {
+        return FilenameUtils.getName(scriptInputPath);
+    }
+
+    protected InputStream openInputStream(String scriptInputPath) throws IOException {
+        if (this.isClasspathResource(scriptInputPath)) {
+            String scriptPath =
+                    scriptInputPath.substring(Constants.PREFIX_CLASSPATH.length());
+            return this.getClass().getResourceAsStream(scriptPath);
+        } else
+            return FileUtils.openInputStream(new File(scriptInputPath));
+    }
+
+    protected boolean isClasspathResource(String path) {
+        return path.startsWith(Constants.PREFIX_CLASSPATH);
     }
 }
