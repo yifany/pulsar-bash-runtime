@@ -7,7 +7,7 @@ import org.apache.pulsar.client.api.PulsarClientException;
 public class PulsarBashProducer {
 
     public static void main(String[] args) throws PulsarClientException, InterruptedException {
-        String topic = "bash-topic-hw";
+        String topic = "persistent://public/default/bash-runtime-input-1";
         String messageBrokerList = "pulsar://localhost:6650";
 
         PulsarClient client = PulsarClient.builder()

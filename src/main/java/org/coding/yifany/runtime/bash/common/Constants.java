@@ -5,6 +5,8 @@ import org.apache.pulsar.functions.api.Context;
 
 public class Constants {
 
+    public static final String NEW_LINE_UNIX = "\n";
+
     public static final String SCRIPT_INPUT_PATH = "scriptInputPath";
     public static final String SCRIPT_OUTPUT_PATH = "scriptOutputPath";
 

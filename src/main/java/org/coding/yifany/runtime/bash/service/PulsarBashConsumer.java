@@ -8,8 +8,8 @@ import org.apache.pulsar.client.api.PulsarClientException;
 public class PulsarBashConsumer {
 
     public static void main(String[] args) throws PulsarClientException {
-        String topic = "bash-topic-hw";
-        String subscriptionName = "bash-topic-hw-subscription";
+        String topic = "persistent://public/default/bash-runtime-output-1";
+        String subscriptionName = "bash-runtime-output-subscription";
         String messageBrokerList = "pulsar://localhost:6650";
 
         PulsarClient client = PulsarClient.builder()
