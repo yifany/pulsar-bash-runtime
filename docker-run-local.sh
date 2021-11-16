@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+mvn clean package -DskipTests
+
 docker exec pulsar-standalone /bin/bash -c "mkdir -p /pulsar/pulsar-bash-runtime"
 
 docker cp target/pulsar-bash-runtime-1.0.jar pulsar-standalone:/pulsar/pulsar-bash-runtime
